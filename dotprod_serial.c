@@ -1,4 +1,4 @@
-﻿/******************************************************************************
+/******************************************************************************
 * FILE: dotprod_serial.c
 * DESCRIPTION:
 *   This is a simple serial program which computes the dot product of two 
@@ -71,9 +71,16 @@ int main (int argc, char *argv[])
 {
 int i,len;
 double *a, *b;
-   
+
+//check for arguments and assign len appropriately
+if (argv[1] != '\0'){
+  len = atoi(argv[1]); }
+else{
+  len = VECLEN;}
+
+
 /* Assign storage and initialize values */
-len = VECLEN;
+//len = VECLEN; // comment out for assigning per argument.
 a = (double*) malloc (len*sizeof(double));
 b = (double*) malloc (len*sizeof(double));
   
