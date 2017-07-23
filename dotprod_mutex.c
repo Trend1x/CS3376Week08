@@ -1,4 +1,4 @@
-﻿/*****************************************************************************
+/*****************************************************************************
 * FILE: dotprod_mutex.c
 * DESCRIPTION:
 *   This example program illustrates the use of mutex variables 
@@ -35,7 +35,7 @@ typedef struct
 #define NUMTHRDS 4
 #define VECLEN 100000
    DOTDATA dotstr; 
-   pthread_t callThd[NUMTHRDS];
+  // pthread_t callThd[NUMTHRDS];
    pthread_mutex_t mutexsum;
 
 /*
@@ -81,7 +81,7 @@ structure, and unlock it upon updating.
 */
    pthread_mutex_lock (&mutexsum);
    dotstr.sum += mysum;
-   printf("Thread %ld did %d to %d:  mysum=%f global sum=%f\n",offset,start,end,mysum,dotstr.sum);
+   printf("Thread %ld did %d to %d:\t mysum=%f\tglobal sum=%f\n",offset,start,end,mysum,dotstr.sum);
    pthread_mutex_unlock (&mutexsum);
 
    pthread_exit((void*) 0);
@@ -100,22 +100,33 @@ no longer needed.
 
 int main (int argc, char *argv[])
 {
+int threads, len;
 long i;
 double *a, *b;
 void *status;
 pthread_attr_t attr;
 
-/* Assign storage and initialize values */
-
-a = (double*) malloc (NUMTHRDS*VECLEN*sizeof(double));
-b = (double*) malloc (NUMTHRDS*VECLEN*sizeof(double));
+//check for arguments and assign threads and len appropriately
+if (argc > 1 ){
+  threads = atoi(argv[1]);
+  len = atoi(argv[2]); }
+else{
+  len = VECLEN;
+  threads = NUMTHRDS;}
   
-for (i=0; i<VECLEN*NUMTHRDS; i++) {
+
+
+/* Assign storage and initialize values */
+pthread_t callThd[threads];
+a = (double*) malloc (threads*len*sizeof(double));
+b = (double*) malloc (threads*len*sizeof(double));
+  
+for (i=0; i<len*threads; i++) {
   a[i]=1;
   b[i]=a[i];
   }
 
-dotstr.veclen = VECLEN; 
+dotstr.veclen = len; 
 dotstr.a = a; 
 dotstr.b = b; 
 dotstr.sum=0;
@@ -126,7 +137,7 @@ pthread_mutex_init(&mutexsum, NULL);
 pthread_attr_init(&attr);
 pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-for(i=0;i<NUMTHRDS;i++)
+for(i=0;i<threads;i++)
   {
   /* Each thread works on a different set of data.
    * The offset is specified by 'i'. The size of
@@ -138,7 +149,7 @@ for(i=0;i<NUMTHRDS;i++)
 pthread_attr_destroy(&attr);
 /* Wait on the other threads */
 
-for(i=0;i<NUMTHRDS;i++) {
+for(i=0;i<threads;i++) {
   pthread_join(callThd[i], &status);
   }
 /* After joining, print out the results and cleanup */
